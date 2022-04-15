@@ -1,5 +1,6 @@
 const data = {
-    users: []
+  users: [],
+  posts: [],
 };
 
 export default data;

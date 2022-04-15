@@ -1,12 +1,14 @@
 import express from "express";
+import connectMoongose from "./utils/dataBase/connect.js";
 
 const app = express();
 
-import usersRoute from "./src/routes/users.js";
+import usersRoute from "./routes/users.js";
 
 const port = process.env.PORT || 8080;
 
 app.use(express.json());
+
 
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
@@ -15,6 +17,7 @@ app.use((req, res, next) => {
     res.header("Access-Control-Allow-Methods", "PUT, POST, PATCH, DELETE, GET");
     return res.status(200).json({});
   }
+
   next();
 });
 
