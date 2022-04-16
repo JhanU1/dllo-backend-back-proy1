@@ -7,7 +7,7 @@ router.get("/",  (req, res) => {
   res.status(200).json(data.users);
 });
 
-router.get("/:id",  (req, res) => {
+router.get("/:user_id",  (req, res) => {
   const user = await data.users.find(user => user.id === req.params.id);
   if (user) {
     res.status(200).json(user);
@@ -56,6 +56,7 @@ router.post("/register", (req, res) => {
   } else {
     if (!userExist) {
       const user = {
+        id: data.users.length + 1,
         display_name,
         username,
         password,
