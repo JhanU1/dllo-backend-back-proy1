@@ -30,20 +30,16 @@ router.post("/prev-login", (req, res) => {
   const { user_id } = req.body;
   if (user_id) {
     if (user_id !== "undefined") {
-      const user = data.users.find(user => user.id === user_id);
-      if (user) {
-        const duration = Date.parse(user.token.date) - Date.now().getTime();
-        console.log(duration);
-        if (duration < 1800000) {
+        const user = data.users.find(user => user.id === user_id);
+        if(user) {
           res.status(200).json(user);
         } else {
-          res.status(404).json({ message: "User token expired" });
+          res.status(404).json({ message: "User not found" });
         }
       } else {
-        res.status(404).send({ message: "User not found" });
+        res.status(404).send({ message: "user_id not found" });
       }
     }
-  }
   res.status(404).send({ message: "user_id is undefined" });
 });
 
@@ -60,10 +56,6 @@ router.post("/register", (req, res) => {
         display_name,
         username,
         password,
-        token: {
-          val: "asd",
-          date: Date.now().toString(),
-        },
       };
       data.users.push(user);
       res.status(200).json(user);

@@ -17,7 +17,7 @@ router.get("/:post_id", (req, res) => {
 });
 
 router.get("/:user_id", (req, res) => {
-  const posts = data.posts.find((post) => post.owner_id === req.params.user_id);
+  const posts = data.posts.filter((post) => post.owner_id === req.params.user_id);
   if (posts) {
     res.status(200).json(posts);
   } else {
