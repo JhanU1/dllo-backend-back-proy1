@@ -5,6 +5,8 @@ const app = express();
 import usersRoute from "./routes/users.js";
 import postsRoute from "./routes/posts.js";
 import cartRoute from "./routes/cart.js";
+import historyRoute from "./routes/history.js";
+import reviewsRoute from "./routes/reviews.js";
 
 const port = process.env.PORT || 8080;
 
@@ -24,6 +26,8 @@ app.use((req, res, next) => {
 app.use("/users", usersRoute);
 app.use("/posts", postsRoute);
 app.use("/cart", cartRoute);
+app.use("/history", historyRoute);
+app.use("/reviews", reviewsRoute);
 
 app.listen(port);
 

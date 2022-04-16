@@ -11,7 +11,7 @@ router.get("/:user_id", (req, res) => {
   const user = data.users.find((user) => user.id === req.params.user_id);
   if (user) {
     const cart = data.carts.find((cart) => cart.user_id === req.params.user_id);
-    if(cart) {
+    if (cart) {
       res.status(200).json(cart);
     } else {
       res.status(200).json([]);
@@ -73,13 +73,22 @@ router.post("buy", (req, res) => {
     if (user) {
       const cart = data.carts.find((cart) => cart.user_id === user_id);
       if (cart) {
-        data.histories.push({
-          id: data.histories.length + 1,
-          products: cart.products,
-          user_id,
-        });
-        data.carts = data.carts.filter((cart) => cart.user_id !== user_id);
-        res.status(200).json({ message: "Products bought" });
+        const history = data.history.find(
+          (history) => history.user_id === user_id
+        );
+        if (history) {
+          data.carts = data.carts.filter((cart) => cart.user_id !== user_id);
+          history.products = history.products.concat(cart.products);
+          res.status(200).json({ message: "Products bought" });
+        } else {
+          data.histories.push({
+            id: data.histories.length + 1,
+            products: cart.products,
+            user_id,
+          });
+          data.carts = data.carts.filter((cart) => cart.user_id !== user_id);
+          res.status(200).json({ message: "Products bought" });
+        }
       }
     }
   }
