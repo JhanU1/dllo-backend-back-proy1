@@ -4,44 +4,45 @@ import data from "../utils/data.js";
 const router = Router();
 
 router.get("/", (req, res) => {
-  res.status(200).json(data.carts);
-});
-
-router.get("/:user_id", (req, res) => {
-  const user = data.users.find((user) => user.id === req.params.user_id);
-  if (user) {
-    const cart = data.carts.find((cart) => cart.user_id === req.params.user_id);
-    if (cart) {
-      res.status(200).json(cart);
+  const { user_id } = req.query;
+  if (user_id) {
+    const user = data.users.find((user) => user._id === user_id);
+    if (user) {
+      const cart = data.carts.find((cart) => cart.user_id === user_id);
+      if (cart) {
+        res.status(200).json(cart.products);
+      } else {
+        res.status(200).json([]);
+      }
     } else {
-      res.status(200).json([]);
+      res.status(404).json({ message: "User not found" });
     }
   } else {
-    res.status(404).json({ message: "User not found" });
+    res.status(200).json(data.carts);
   }
 });
 
 router.post("/", (req, res) => {
   const { product_id, user_id } = req.body;
-  if (!product_id || !user_id) {
-    res.status(400).json({ message: "Please provide all fields" });
-  } else {
-    const user = data.users.find((user) => user.id === user_id).cart;
+
+  if (product_id && user_id) {
+    const user = data.users.find((user) => user._id === user_id);
     if (user) {
       const cart = data.carts.find((cart) => cart.user_id === user_id);
       if (cart) {
-        cart.products.push(product);
+        cart.products.push({ product_id });
         res.status(200).json({ message: "Product added to cart" });
       } else {
         data.carts.push({
-          id: data.carts.length + 1,
-          products: [product_id],
+          _id: `${data.carts.length + 1}`,
+          products: [{product_id}],
           user_id,
         });
         res.status(200).json({ message: "Product added to cart" });
       }
     }
-    res.status(200).json(user);
+  } else {
+    res.status(400).json({ message: "Please provide all fields" });
   }
 });
 
@@ -50,7 +51,7 @@ router.delete("/", (req, res) => {
   if (!product_id || !user_id) {
     res.status(400).json({ message: "Please provide all fields" });
   } else {
-    const user = data.users.find((user) => user.id === user_id).cart;
+    const user = data.users.find((user) => user._id === user_id).cart;
     if (user) {
       const cart = data.carts.find((cart) => cart.user_id === user_id);
       if (cart) {
@@ -69,7 +70,7 @@ router.post("buy", (req, res) => {
   if (!user_id) {
     res.status(400).json({ message: "Please provide all fields" });
   } else {
-    const user = data.users.find((user) => user.id === user_id);
+    const user = data.users.find((user) => user._id === user_id);
     if (user) {
       const cart = data.carts.find((cart) => cart.user_id === user_id);
       if (cart) {
@@ -82,7 +83,7 @@ router.post("buy", (req, res) => {
           res.status(200).json({ message: "Products bought" });
         } else {
           data.histories.push({
-            id: data.histories.length + 1,
+            _id: `${data.histories.length + 1}`,
             products: cart.products,
             user_id,
           });
@@ -93,3 +94,5 @@ router.post("buy", (req, res) => {
     }
   }
 });
+
+export default router;
