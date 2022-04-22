@@ -1,39 +1,50 @@
 import { Router } from "express";
 import data from "../utils/data.js";
+import {
+  createUser,
+  getUserById,
+  getUsers,
+  getUserWithCredentials,
+  getUserByUserName,
+} from "../utils/database/models/user.js";
 
 const router = Router();
 
-router.get("/", (req, res) => {
+router.get("/", async (req, res) => {
   const user_id = req.query.user_id;
   if (user_id) {
-    const user = data.users.find((user) => user._id === user_id);
+    const user = await getUserById(user_id);
     if (user) {
       res.status(200).json(user);
     } else {
       res.status(404).json({ message: "User not found" });
     }
   } else {
-    res.status(200).json(data.users);
+    const users = await getUsers();
+    res.status(200).json(users);
   }
 });
 
-router.post("/login", (req, res) => {
+router.post("/login", async (req, res) => {
   const { username, password } = req.body;
-  const user = data.users.find(
-    (user) => user.username === username && user.password === password
-  );
-  if (user) {
-    res.status(200).json(user);
+  if (username && password) {
+    const user = await getUserWithCredentials(username, password);
+    if (user) {
+      res.status(200).json(user);
+    } else {
+      res.status(404).send({ message: "User not found" });
+    }
   } else {
-    res.status(404).send({ message: "User not found" });
+    res.status(400).json({ message: "Missing username or password" });
   }
 });
 
-router.post("/prev-login", (req, res) => {
+router.post("/prev-login", async (req, res) => {
   const { user_id } = req.body;
   if (user_id) {
     if (user_id !== "undefined") {
-      const user = data.users.find((user) => user._id === user_id);
+      const user = await getUserById(user_id);
+      console.log("prev-login", user);
       if (user) {
         return res.status(200).json(user);
       } else {
@@ -44,25 +55,23 @@ router.post("/prev-login", (req, res) => {
   res.status(404).send({ message: "user_id is undefined" });
 });
 
-router.post("/register", (req, res) => {
+router.post("/register", async (req, res) => {
   const { display_name, username, password } = req.body;
-  // Fail if the fields are not completed
-  const userExist = data.users.find((user) => user.username === username);
-  if (!username || !password || !display_name) {
-    res.status(400).json({ message: "Please provide name and password" });
-  } else {
+  const userExist = await getUserByUserName(username);
+  if (username && password && display_name) {
     if (!userExist) {
       const user = {
-        _id: `${data.users.length + 1}`,
         display_name,
         username,
         password,
       };
-      data.users.push(user);
-      res.status(200).json(user);
+      const newUser = await createUser(user);
+      res.status(200).json(newUser);
     } else {
       res.status(400).json({ message: "User already exists" });
     }
+  } else {
+    res.status(400).json({ message: "Please provide name and password" });
   }
 });
 
