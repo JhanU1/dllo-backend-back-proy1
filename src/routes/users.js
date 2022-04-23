@@ -1,5 +1,4 @@
 import { Router } from "express";
-import data from "../utils/data.js";
 import {
   createUser,
   getUserById,

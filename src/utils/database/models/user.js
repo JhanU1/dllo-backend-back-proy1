@@ -30,10 +30,44 @@ async function getUsers() {
   return await User.find({}).exec();
 }
 
+async function getUserPosts(userId) {
+  return await User.aggregate([
+    { $match: { _id: userId } },
+    {
+      $lookup: {
+        from: "post",
+        localField: "_id",
+        foreignField: "owner_id",
+        as: "posts",
+      },
+    },
+    { $project: { posts: 1 } },
+    { $unwind: "$posts" },
+  ]).exec();
+}
+
+async function getUserReviews(userId) {
+  return await User.aggregate([
+    { $match: { _id: userId } },
+    {
+      $lookup: {
+        from: "review",
+        localField: "_id",
+        foreignField: "user_id",
+        as: "reviews",
+      },
+    },
+    { $project: { reviews: 1 } },
+    { $unwind: "$reviews" },
+  ]).exec();
+}
+
 export {
   createUser,
   getUserById,
   getUsers,
   getUserWithCredentials,
   getUserByUserName,
+  getUserPosts,
+  getUserReviews,
 };

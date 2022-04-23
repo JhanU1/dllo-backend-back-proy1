@@ -20,7 +20,7 @@ async function getPosts() {
 }
 
 async function getUserPosts(owner_id) {
-  return await Post.find({ owner_id}).exec();
+  return await Post.find({ owner_id }).exec();
 }
 
 async function getPostById(id) {
@@ -35,6 +35,27 @@ async function recentPosts() {
   return await Post.find({}).limit(10).exec();
 }
 
+async function getPostReviews(postId) {
+  const reviews = await Post.aggregate([
+    { $match: { _id: postId } },
+    {
+      $lookup: {
+        from: "reviews",
+        let: { searchId: { $toObjectId: "$product_id" } },
+        pipeline: [{ $match: { $expr: [{ _id: "$searchId" }] } }],
+        as: "reviews",
+      },
+    },
+    { $project: { _id: 0, reviews: 1 } },
+    { $unwind: "$reviews" },
+  ]).exec();
+
+  const flatR = reviews.map((review) => {
+    return review.reviews;
+  });
+  return flatR;
+}
+
 export {
   createPost,
   getPosts,
@@ -42,4 +63,5 @@ export {
   removePostById,
   getUserPosts,
   recentPosts,
+  getPostReviews,
 };
