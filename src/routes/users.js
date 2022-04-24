@@ -43,7 +43,6 @@ router.post("/prev-login", async (req, res) => {
   if (user_id) {
     if (user_id !== "undefined") {
       const user = await getUserById(user_id);
-      console.log("prev-login", user);
       if (user) {
         return res.status(200).json(user);
       } else {

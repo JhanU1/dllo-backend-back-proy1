@@ -7,6 +7,7 @@ const postSchema = new Schema({
   display_name: String,
   description: String,
   price: String,
+  created_date: { type: Date, default: Date.now },
 });
 
 const Post = mongoose.model("Post", postSchema);
@@ -39,21 +40,23 @@ async function getPostReviews(postId) {
   const reviews = await Post.aggregate([
     { $match: { _id: postId } },
     {
+      $project: {
+        "_id": {
+          $toString: "$_id"
+        }
+      }
+    },
+    {
       $lookup: {
         from: "reviews",
-        let: { searchId: { $toObjectId: "$product_id" } },
-        pipeline: [{ $match: { $expr: [{ _id: "$searchId" }] } }],
-        as: "reviews",
-      },
+        localField: "_id",
+        foreignField: "product_id",
+        as: "reviews"
+      }
     },
     { $project: { _id: 0, reviews: 1 } },
-    { $unwind: "$reviews" },
   ]).exec();
-
-  const flatR = reviews.map((review) => {
-    return review.reviews;
-  });
-  return flatR;
+  return reviews[0].reviews;
 }
 
 export {

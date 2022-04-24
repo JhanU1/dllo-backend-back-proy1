@@ -32,7 +32,6 @@ router.get("/", async (req, res) => {
     const product = await getPostById(product_id);
     if (product) {
       const reviews = await getPostReviews(product._id);
-      console.log(reviews);
       res.status(200).json(reviews);
     } else {
       res.status(404).json({ message: "Product not found" });
@@ -40,7 +39,7 @@ router.get("/", async (req, res) => {
   } else if (user_id) {
     const user = await getUserById(user_id);
     if (user) {
-      const reviews = await getUserReviews(user_id);
+      const reviews = await getUserReviews(user._id);
       res.status(200).json(reviews);
     } else {
       res.status(404).json({ message: "User not found" });
@@ -53,7 +52,7 @@ router.get("/", async (req, res) => {
 
 router.post("/", async (req, res) => {
   const { product_id, user_id, rating, description } = req.body;
-  console.log(req.body);
+
   if (product_id && user_id && rating && description) {
     const user = await getUserById(user_id);
     if (user) {
