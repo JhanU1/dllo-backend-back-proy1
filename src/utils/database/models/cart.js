@@ -34,13 +34,10 @@ async function deleteProductFromCart(product_id) {
     "products._id": { $in: [new mongoose.Types.ObjectId(product_id)] },
   }).exec();
   if (res.length > 0) {
-    console.log("id to delete", product_id);
     const cart = res[0];
-    console.log("Before delete", cart.products.length);
     cart.products = cart.products.filter(
       (product) => !new mongoose.Types.ObjectId(product_id).equals(product._id)
     );
-    console.log("After delete", cart.products.length);
     await cart.save();
     return cart.products;
   }
